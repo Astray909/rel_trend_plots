@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.ticker as mtick
@@ -113,54 +114,123 @@ def data_importer(inputcsv):
                 df_TEMP = df_TEMP.sort_values(by = ['YYWW_datecode'])
                 if c == 'Rdson_aging(%)' or c == 'Vth_aging(%)':
                     df_TEMP.loc[:,c] = df_TEMP.loc[:,c] * 100
+
+                pd.options.mode.chained_assignment = None  # default='warn'
+                df_TEMP.loc[:,"YYWW_datecode"] = df_TEMP.loc[:,"YYWW_datecode"] + '_' + df_TEMP.loc[:,"die"]
+                pd.options.mode.chained_assignment = 'warn'  # default='warn'
+
+                df_TEMP_pal = df_TEMP[['YYWW_datecode','die']].copy()
+                df_TEMP_pal = df_TEMP_pal.drop_duplicates()
+
+                pal_tuple_list = []
+                palette_list = []
+                palette_list_nodie = []
+                die_list = df_TEMP_pal['die'].tolist()
+                df_TEMP_pal_sub = df_TEMP_pal['die'].copy()
+                df_TEMP_pal_sub = df_TEMP_pal_sub.drop_duplicates()
+                df_TEMP_pal_sub_die = df_TEMP_pal_sub.tolist()
+                total_colours_needed = len(df_TEMP_pal_sub_die)
+                palette = sns.color_palette("hls", total_colours_needed)
+                for die_ind in range(len(df_TEMP_pal_sub_die)):
+                    pal_tuple_list.append((df_TEMP_pal_sub_die[die_ind],palette[die_ind]))
+
+                for die_list_ind in range(len(die_list)):
+                    for pal_tuple in pal_tuple_list:
+                        if pal_tuple[0] == die_list[die_list_ind]:
+                            palette_list.append(pal_tuple)
+                
+                for pall in palette_list:
+                    palette_list_nodie.append(pall[1])
+                
+                palette = palette_list_nodie.copy()
+            
+                # palette = ['rosybrown' if val == 'D8' 
+                # else 'firebrick' if val == 'F8' 
+                # else 'red' if val == 'F16' 
+                # else 'darksalmon' if val == 'AJ18' 
+                # else 'sienna' if val == 'W1' 
+                # else 'sandybrown' if val == 'W2' 
+                # else 'bisque' if val == 'W3' 
+                # else 'tan' if val == 'W8' 
+                # else 'moccasin' if val == 'S4' 
+                # else 'gold' if val == 'INN_W8' 
+                # else 'darkkhaki' if val == 'W5' 
+                # else 'olivedrab' if val == 'NV6117' 
+                # else 'chartreuse' if val == 'INN650DA04' 
+                # else 'palegreen' if val == 'INN650DA260A' 
+                # else 'darkgreen' if val == 'INN650DA02A' 
+                # else 'seagreen' if val == 'F2' 
+                # else 'mediumspringgreen' if val == 'F4' 
+                # else 'lightseagreen' if val == 'D6' 
+                # else 'paleturquoise' if val == 'D4' 
+                # else 'darkcyan' if val == 'S1' 
+                # else 'darkturquoise' if val == 'N8' 
+                # else 'deepskyblue' if val == 'AW45' 
+                # else 'slategray' if val == 'W3 8x8' 
+                # else 'royalblue' if val == 'EPC2204' 
+                # else 'plum' if val == 'SGAN100' 
+                # else 'orange' for val in df_TEMP_pal['die'].tolist()]
+
                 i_no_number = ''.join([ii for ii in str(i) if not ii.isdigit()])
                 plt_filename = 'plt_' + joined_name + '_' + str(id_list_cleaned[i]) + '_' + str(i_no_number) + str(c)
-                plt.figure(figsize=(20, 6))
+                plt.figure(figsize=(30, 15))
                 sns.set_theme(style="whitegrid")
                 plotname = 'plt_' + joined_name + '_' + str(i)
-                plotname = sns.boxplot(x="YYWW_datecode", y=c, data=df_TEMP, width=0.5)
-                plotname.set_title(joined_name + '_' + str(id_list_cleaned[i]))
-                plotname.set_xticklabels(plotname.get_xticklabels(),rotation = 30)
+                plotname = sns.boxplot(x="YYWW_datecode", y=c, data=df_TEMP, width=0.5, palette=palette)
+                plotname.legend(labels = df_TEMP_pal_sub_die, loc=6, bbox_to_anchor=(1, 0.5), ncol=1, fontsize = 25)
+                plotname.set_title(c + ' ' + joined_name + '_' + str(id_list_cleaned[i]), fontsize = 25)
+                plotname.set_xlabel("YYWW_datecode_Product", fontsize = 20)
+                plotname.set_ylabel(c, fontsize = 20)
+                plotname.set_xticklabels(plotname.get_xticklabels(),rotation = 90. , fontsize = 10)
+
+                df_TEMP_ol = df_TEMP.copy()
+                pd.options.mode.chained_assignment = None  # default='warn'
+                df_TEMP_ol.loc[:,"YYWW_datecode"] = df_list[i].loc[:,"YYWW_datecode"]
+                pd.options.mode.chained_assignment = 'warn'  # default='warn'
+
                 if c == 'Igss_rise(x)' or c == 'Idoff_rise(x)':
                     plt.ylim(0, 50)
-                    outlier_df_lower = df_list[i][(df_list[i][c] < 0)]
-                    outlier_df_higher = df_list[i][(df_list[i][c] > 50)]
+                    plt.yticks(np.arange(0, 50, 2))
+                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < 0)]
+                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 50)]
                     outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
                     outlier_df = outlier_df[['YYWW_datecode','device', c]]
                     if outlier_df.empty == False:
                         decimals = 2    
                         outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.08]*len(outlier_df.columns),
+                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
                         rowLabels=outlier_df.index,
                         colLabels=outlier_df.columns,
                         cellLoc = 'center', rowLoc = 'center',
                         loc='best')
                 elif c == 'Rdson_aging(%)':
                     plt.ylim(-50, 150)
+                    plt.yticks(np.arange(-50, 150, 5))
                     plotname.yaxis.set_major_formatter(mtick.PercentFormatter())
-                    outlier_df_lower = df_list[i][(df_list[i][c] < -0.5)]
-                    outlier_df_higher = df_list[i][(df_list[i][c] > 1.5)]
+                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < -50)]
+                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 150)]
                     outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
                     outlier_df = outlier_df[['YYWW_datecode','device', c]]
                     if outlier_df.empty == False:
                         decimals = 2    
                         outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.08]*len(outlier_df.columns),
+                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
                         rowLabels=outlier_df.index,
                         colLabels=outlier_df.columns,
                         cellLoc = 'center', rowLoc = 'center',
                         loc='best')
                 elif c == 'Vth_aging(%)':
                     plt.ylim(-50, 50)
+                    plt.yticks(np.arange(-50, 50, 5))
                     plotname.yaxis.set_major_formatter(mtick.PercentFormatter())
-                    outlier_df_lower = df_list[i][(df_list[i][c] < -0.5)]
-                    outlier_df_higher = df_list[i][(df_list[i][c] > 0.5)]
+                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < -50)]
+                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 50)]
                     outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
                     outlier_df = outlier_df[['YYWW_datecode','device', c]]
                     if outlier_df.empty == False:
                         decimals = 2    
                         outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.08]*len(outlier_df.columns),
+                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
                         rowLabels=outlier_df.index,
                         colLabels=outlier_df.columns,
                         cellLoc = 'center', rowLoc = 'center',
