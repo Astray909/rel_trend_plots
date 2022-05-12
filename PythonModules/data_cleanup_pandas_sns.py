@@ -19,8 +19,8 @@ def csv_merger(mode,*target_init):
     column_header_rearr = ['Off-Idl','Off-Idl_check']
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + '\\'
     # logger_df = pd.read_excel('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\test_logger_v02.xlsx')
-    logger_df = pd.read_excel(logger_finder.get_logger())
-    ori_dir = os.getcwd()
+    logger_df = pd.read_excel(logger_finder.get_logger()) #logger file as df
+    ori_dir = os.getcwd() #original processing directory
     target_folders_arr = []
     csv_arr = []
     if mode != 99:
@@ -41,6 +41,7 @@ def csv_merger(mode,*target_init):
             if uid in iterator:
                 target_folders_arr.append(iterator)
 
+    # check folder integrity and skip ones with missing folders
     problem_lots = folder_inte_check(target_folders_arr)
     problem_lots_df = pd.DataFrame(problem_lots,columns=['Lot','reason'])
     if mode != 66:
@@ -52,6 +53,7 @@ def csv_merger(mode,*target_init):
 
     target_folders_arr_x = target_folders_arr
         
+    # change source dir based on mode
     if mode == 0:
         target_folders_arr = [x + '\\2_processed_data' for x in target_folders_arr]
     elif mode == 1:
@@ -166,6 +168,7 @@ def csv_merger(mode,*target_init):
     original_index = []
     original_index_check = []
     return_df_column = return_df.columns.tolist()
+    # rearrange OffId columns
     for i in range(len(return_df_column)):
         if 'OffId' in return_df_column[i]:
             original_index.append(i)
@@ -216,6 +219,7 @@ def csv_merger(mode,*target_init):
 
     return
 
+# checks integrity of folders for missing folders
 def folder_inte_check(target):
     prob_lots = []
     pgB.printProgressBar(0, len(target), prefix = 'Folder Integrity Check Progress:', suffix = 'Complete', length = 50)
@@ -259,6 +263,7 @@ def get_info(word,seperator):
 
     return words
 
+# parametric shifts calculation
 def add_shifts_columns(desktop):
     calc_arr = []
     init_df = pd.read_csv(desktop + 'csv_merge\\csv_merge_result.csv')
@@ -278,6 +283,7 @@ def add_shifts_columns(desktop):
         if idoff_self == 'inf':
             idoff_self = 999999999
         
+        # locate same device and uid if time != 0
         if row['Test Hours_Cycles'] == 0:
             try:
                 calc_arr.append([(rdson_self/rdson_self - 1), (vth_self/vth_self - 1), (igs_self/igs_self), (idoff_self/idoff_self)])
@@ -303,6 +309,7 @@ def add_shifts_columns(desktop):
     final_df.to_csv(desktop + 'csv_merge\\csv_merge_result.csv',index=False)
     return
 
+# gets correct raw data csv files
 def csvgetter(dir, retest):
     open_path = dir
     output_arr = []
@@ -313,6 +320,7 @@ def csvgetter(dir, retest):
     for item in result:
         if 'String' in item:
             is_FTI = False
+    # for keathley files: only take ones with 'String' in first index
     if is_FTI:
         for i in range(len(result)):
             testforretest = result[i].lower()

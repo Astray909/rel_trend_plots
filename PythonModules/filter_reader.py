@@ -4,6 +4,7 @@ import PythonModules.progressBar as pgB
 
 import pandas as pd
 
+# reads filter file and outputs a reference file for other functions
 def filter_reader():
     logger_df = pd.read_excel(logger_finder.get_logger())
     

@@ -13,9 +13,9 @@ import PythonModules.logger_finder as logger_finder
 
 from tkinter.filedialog import askopenfilename
 
+# plots rel trend plots
 def data_importer(inputcsv):
     inputdf = pd.read_csv(inputcsv)
-    # print(inputdf)
 
     ori_path = os.getcwd()
     path = 'X://PLC//Prod Docs//Qual//qrw_script//'
@@ -35,8 +35,6 @@ def data_importer(inputcsv):
     initiator_df = pd.read_excel(initiator, sheet_name = 'product_id')
     
     result_df_list = []
-    test_type_list = inputdf['Rel Test'].tolist()
-    # volt_type_list = [str(vinttost) for vinttost in inputdf['Voltage (V)'].tolist()]
     result_df_master = inputdf.loc[(inputdf['Test Hours_Cycles'] == 1000)]
 
     filter_df = pd.read_excel(logger_finder.file_finder('merge_file_filter'))
@@ -62,7 +60,6 @@ def data_importer(inputcsv):
 
     for result_df in result_df_list:
         result_df_test = str(list(dict.fromkeys(result_df.loc[:,'Rel Test'].tolist()))[0])
-        # result_df_volt = str(list(dict.fromkeys(result_df.loc[:,'Voltage (V)'].tolist()))[0])
         result_df_conds = []
         result_df_conds.append(result_df_test)
         for filter_df_col_2 in filter_df_columns:
@@ -85,22 +82,16 @@ def data_importer(inputcsv):
             product_id_list.append(prod_id.to_string(index=False))
             series_id_list.append(series_id.to_string(index=False))
 
-        product_id_list_cleaned = ntSort(list(dict.fromkeys(product_id_list)))
-        product_id_list_len = len(product_id_list)
         series_id_list_cleaned = ntSort(list(dict.fromkeys(series_id_list)))
-        series_id_list_len = len(series_id_list)
 
         pd.options.mode.chained_assignment = None  # default='warn'
         result_df.loc[:,"die"] = product_id_list
         result_df.loc[:,"series"] = series_id_list
         pd.options.mode.chained_assignment = 'warn'  # default='warn'
 
-        # id_list_cleaned = product_id_list_cleaned + series_id_list_cleaned
         id_list_cleaned = series_id_list_cleaned
 
         df_list = []
-        # for region, df_region in result_df.groupby('die'):
-        #     df_list.append(df_region)
         for region_2, df_region_2 in result_df.groupby('series'):
             df_list.append(df_region_2)
 
@@ -122,6 +113,7 @@ def data_importer(inputcsv):
                 df_TEMP_pal = df_TEMP[['YYWW_datecode','die']].copy()
                 df_TEMP_pal = df_TEMP_pal.drop_duplicates()
 
+                # constructs a colour palette based on number of devices
                 pal_tuple_list = []
                 palette_list = []
                 palette_list_nodie = []
@@ -143,33 +135,6 @@ def data_importer(inputcsv):
                     palette_list_nodie.append(pall[1])
                 
                 palette = palette_list_nodie.copy()
-            
-                # palette = ['rosybrown' if val == 'D8' 
-                # else 'firebrick' if val == 'F8' 
-                # else 'red' if val == 'F16' 
-                # else 'darksalmon' if val == 'AJ18' 
-                # else 'sienna' if val == 'W1' 
-                # else 'sandybrown' if val == 'W2' 
-                # else 'bisque' if val == 'W3' 
-                # else 'tan' if val == 'W8' 
-                # else 'moccasin' if val == 'S4' 
-                # else 'gold' if val == 'INN_W8' 
-                # else 'darkkhaki' if val == 'W5' 
-                # else 'olivedrab' if val == 'NV6117' 
-                # else 'chartreuse' if val == 'INN650DA04' 
-                # else 'palegreen' if val == 'INN650DA260A' 
-                # else 'darkgreen' if val == 'INN650DA02A' 
-                # else 'seagreen' if val == 'F2' 
-                # else 'mediumspringgreen' if val == 'F4' 
-                # else 'lightseagreen' if val == 'D6' 
-                # else 'paleturquoise' if val == 'D4' 
-                # else 'darkcyan' if val == 'S1' 
-                # else 'darkturquoise' if val == 'N8' 
-                # else 'deepskyblue' if val == 'AW45' 
-                # else 'slategray' if val == 'W3 8x8' 
-                # else 'royalblue' if val == 'EPC2204' 
-                # else 'plum' if val == 'SGAN100' 
-                # else 'orange' for val in df_TEMP_pal['die'].tolist()]
 
                 i_no_number = ''.join([ii for ii in str(i) if not ii.isdigit()])
                 plt_filename = 'plt_' + joined_name + '_' + str(id_list_cleaned[i]) + '_' + str(i_no_number) + str(c)
@@ -236,7 +201,7 @@ def data_importer(inputcsv):
                         cellLoc = 'center', rowLoc = 'center',
                         loc='best')
                 # plt.show()
-                plt.savefig('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\' + plt_filename + '.png')
+                plt.savefig(desktop + '\\PLOTTING_TEST\\' + plt_filename + '.png')
                 plt.close()
                 pgB.printProgressBar(i + 1, len(df_list), prefix =  c + 'Graphs Progress:', suffix = 'Complete', length = 50)
 

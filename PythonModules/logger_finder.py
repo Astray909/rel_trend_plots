@@ -9,7 +9,7 @@ import os
 import glob
 import re
 
-
+# locates a specific file in qrw_script folder with keywords
 def file_finder(filename_keywords):
     ori_path = os.getcwd()
     path = 'X://PLC//Prod Docs//Qual//qrw_script//'
@@ -30,10 +30,12 @@ def get_logger():
     return_path = file_finder('test_logger')
     return return_path
 
+# get the latest version of event logger
 def get_event_logger():
     return_path = file_finder('test_event_logger')
     return return_path
 
+# get the latest version of unified headers lookup
 def unified_header_finder():
     return_path = file_finder('Unified_Headers_Lookup')
     return return_path
