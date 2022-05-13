@@ -20,7 +20,7 @@ if __name__ == "__main__":
         if not os.path.exists('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\Archived' + arc_dir_name):
             os.makedirs('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\Archived' + arc_dir_name)
 
-    for file in filenames:
-        shutil.move('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\' + file, 'X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\Archived' + arc_dir_name)
+        for file in filenames:
+            shutil.move('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\' + file, 'X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\Archived' + arc_dir_name)
     inputcsv = str(desktop + 'csv_merge\\csv_merge_result.csv')
-    graph_plotter.data_importer(inputcsv)
+    graph_plotter.data_importer(inputcsv, False)

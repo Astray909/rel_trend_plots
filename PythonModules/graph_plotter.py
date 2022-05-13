@@ -14,7 +14,7 @@ import PythonModules.logger_finder as logger_finder
 from tkinter.filedialog import askopenfilename
 
 # plots rel trend plots
-def data_importer(inputcsv):
+def data_importer(inputcsv, manual):
     inputdf = pd.read_csv(inputcsv)
 
     ori_path = os.getcwd()
@@ -201,7 +201,10 @@ def data_importer(inputcsv):
                         cellLoc = 'center', rowLoc = 'center',
                         loc='best')
                 # plt.show()
-                plt.savefig(desktop + '\\PLOTTING_TEST\\' + plt_filename + '.png')
+                if manual:
+                    plt.savefig(desktop + '\\REL_TREND_PLOTS\\' + plt_filename + '.png')
+                else:
+                    plt.savefig('X:\\PLC\\Prod Docs\\Qual\\qrw_script\\Rel Trend Charts\\' + plt_filename + '.png')
                 plt.close()
                 pgB.printProgressBar(i + 1, len(df_list), prefix =  c + 'Graphs Progress:', suffix = 'Complete', length = 50)
 
