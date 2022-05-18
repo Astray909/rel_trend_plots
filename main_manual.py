@@ -38,8 +38,9 @@ def filter_reader():
 
 if __name__ == "__main__":
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + '\\'
-    filter_reader()
-    dcp.csv_merger(99, desktop + 'filtered_logger_temp.xlsx')
+    # filter_reader()
+    # dcp.csv_merger(99, desktop + 'filtered_logger_temp.xlsx')
+    dcp.csv_merger(0)
     if not os.path.exists(desktop + '\\REL_TREND_PLOTS'):
             os.makedirs(desktop + '\\REL_TREND_PLOTS')
     filenames = next(os.walk(desktop + '\\REL_TREND_PLOTS\\'), (None, None, []))[2]  # [] if no file
