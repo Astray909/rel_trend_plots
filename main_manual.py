@@ -40,6 +40,13 @@ if __name__ == "__main__":
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + '\\'
     # filter_reader()
     # dcp.csv_merger(99, desktop + 'filtered_logger_temp.xlsx')
+
+    MsgBox = messagebox.askquestion('Operation Type','Do you want to use default interval and Y-axis settings?',icon = 'question')
+    if MsgBox == 'yes':
+        print('yes')
+    else:
+        print('no')
+
     dcp.csv_merger(0)
     if not os.path.exists(desktop + '\\REL_TREND_PLOTS'):
             os.makedirs(desktop + '\\REL_TREND_PLOTS')
