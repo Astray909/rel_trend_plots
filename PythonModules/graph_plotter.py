@@ -14,7 +14,7 @@ import PythonModules.logger_finder as logger_finder
 from tkinter.filedialog import askopenfilename
 
 # plots rel trend plots
-def data_importer(inputcsv, manual):
+def data_importer(inputcsv, manual, range_arr):
     inputdf = pd.read_csv(inputcsv)
 
     ori_path = os.getcwd()
@@ -35,7 +35,10 @@ def data_importer(inputcsv, manual):
     initiator_df = pd.read_excel(initiator, sheet_name = 'product_id')
     
     result_df_list = []
-    result_df_master = inputdf.loc[(inputdf['Test Hours_Cycles'] == 1000)]
+    if manual:
+        result_df_master = inputdf.loc[(inputdf['Test Hours_Cycles'] == float(range_arr[0]))]
+    else:
+        result_df_master = inputdf.loc[(inputdf['Test Hours_Cycles'] == 1000)]
 
     filter_df = pd.read_excel(logger_finder.file_finder('merge_file_filter'))
     logger_df = pd.read_excel(logger_finder.get_logger())
@@ -153,53 +156,44 @@ def data_importer(inputcsv, manual):
                 df_TEMP_ol.loc[:,"YYWW_datecode"] = df_list[i].loc[:,"YYWW_datecode"]
                 pd.options.mode.chained_assignment = 'warn'  # default='warn'
 
-                if c == 'Igss_rise(x)' or c == 'Idoff_rise(x)':
-                    plt.ylim(0, 50)
-                    plt.yticks(np.arange(0, 50, 2))
-                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < 0)]
-                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 50)]
-                    outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
-                    outlier_df = outlier_df[['YYWW_datecode','device', c]]
-                    if outlier_df.empty == False:
-                        decimals = 2    
-                        outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
-                        rowLabels=outlier_df.index,
-                        colLabels=outlier_df.columns,
-                        cellLoc = 'center', rowLoc = 'center',
-                        loc='best')
-                elif c == 'Rdson_aging(%)':
-                    plt.ylim(-50, 150)
-                    plt.yticks(np.arange(-50, 150, 5))
-                    plotname.yaxis.set_major_formatter(mtick.PercentFormatter())
-                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < -50)]
-                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 150)]
-                    outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
-                    outlier_df = outlier_df[['YYWW_datecode','device', c]]
-                    if outlier_df.empty == False:
-                        decimals = 2    
-                        outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
-                        rowLabels=outlier_df.index,
-                        colLabels=outlier_df.columns,
-                        cellLoc = 'center', rowLoc = 'center',
-                        loc='best')
+                #format: [interval, rdson upper, rdson lower, vth upper, vth lower, idoff upper, idoff lower, igss upper, igss lower]
+                default_ran_arr = ['1000', '150', '-50', '50', '-50', '50', '0', '50', '0']
+                ran_arr = []
+                if manual:
+                    ran_arr = range_arr.copy()
+                else:
+                    ran_arr = default_ran_arr.copy()
+                if c == 'Rdson_aging(%)':
+                    high_range = float(ran_arr[1])
+                    low_range = float(ran_arr[2])
+                    spacing = 5
                 elif c == 'Vth_aging(%)':
-                    plt.ylim(-50, 50)
-                    plt.yticks(np.arange(-50, 50, 5))
-                    plotname.yaxis.set_major_formatter(mtick.PercentFormatter())
-                    outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < -50)]
-                    outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > 50)]
-                    outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
-                    outlier_df = outlier_df[['YYWW_datecode','device', c]]
-                    if outlier_df.empty == False:
-                        decimals = 2    
-                        outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
-                        plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
-                        rowLabels=outlier_df.index,
-                        colLabels=outlier_df.columns,
-                        cellLoc = 'center', rowLoc = 'center',
-                        loc='best')
+                    high_range = float(ran_arr[3])
+                    low_range = float(ran_arr[4])
+                    spacing = 5
+                elif c == 'Idoff_rise(x)':
+                    high_range = float(ran_arr[5])
+                    low_range = float(ran_arr[6])
+                    spacing = 2
+                elif c == 'Igss_rise(x)':
+                    high_range = float(ran_arr[7])
+                    low_range = float(ran_arr[8])
+                    spacing = 2
+                plt.ylim(low_range, high_range)
+                plt.yticks(np.arange(low_range, high_range, spacing))
+                outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < low_range)]
+                outlier_df_higher = df_TEMP_ol[(df_TEMP_ol[c] > high_range)]
+                outlier_df = pd.concat([outlier_df_lower, outlier_df_higher])
+                outlier_df = outlier_df[['YYWW_datecode','device', c]]
+                if outlier_df.empty == False:
+                    decimals = 2    
+                    outlier_df[c] = outlier_df[c].apply(lambda x: round(x, decimals))
+                    plt.table(cellText=outlier_df.values,colWidths = [0.1]*len(outlier_df.columns),
+                    rowLabels=outlier_df.index,
+                    colLabels=outlier_df.columns,
+                    cellLoc = 'center', rowLoc = 'center',
+                    loc='best')
+
                 # plt.show()
                 if manual:
                     plt.savefig(desktop + '\\REL_TREND_PLOTS\\' + plt_filename + '.png')
@@ -213,7 +207,3 @@ def ntSort(input):
     convert = lambda text: int(text) if text.isdigit() else text
     alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
     return sorted(input, key = alphanum_key)
-
-if __name__ == "__main__":
-    inputcsv = askopenfilename()
-    data_importer(inputcsv)

@@ -9,21 +9,60 @@ config_dir = os.path.join(os.path.join(os.environ['USERPROFILE']), '.config') + 
 if not os.path.exists(config_dir + 'jhuang_rel_trend_plots\\'):
     os.makedirs(config_dir + 'jhuang_rel_trend_plots\\')
 
-def config_read():
+def config_read(mode):
     config.read(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini')
+    interval_sel = config.get('interval', 'interval')
+    
+    rdsonul = config.get('rdson', 'upper')
+    rdsonll = config.get('rdson', 'lower')
 
-    print(config.get('main', 'key1'))
-    print(config.get('main', 'key2'))
-    print(config.get('main', 'key3'))
+    vthul = config.get('vth', 'upper')
+    vthll = config.get('vth', 'lower')
 
-def config_write():
+    idofful = config.get('idoff', 'upper')
+    idoffll = config.get('idoff', 'lower')
+
+    igssul = config.get('igss', 'upper')
+    igssll = config.get('igss', 'lower')
+
+    if mode == 0:
+        return interval_sel, rdsonul, rdsonll, vthul, vthll, idofful, idoffll, igssul, igssll
+    elif mode == 1:
+        arr = [interval_sel, rdsonul, rdsonll, vthul, vthll, idofful, idoffll, igssul, igssll]
+        return arr
+
+def config_write(interval_sel, rdsonul, rdsonll, vthul, vthll, idofful, idoffll, igssul, igssll):
     config.read(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini')
-    if config.has_section('main'):
-        config.remove_section('main')
-    config.add_section('main')
-    config.set('main', 'key1', 'value1')
-    config.set('main', 'key2', 'value2')
-    config.set('main', 'key3', 'value3')
+    if config.has_section('interval'):
+        config.remove_section('interval')
+    if config.has_section('rdson'):
+        config.remove_section('rdson')
+    if config.has_section('vth'):
+        config.remove_section('vth')
+    if config.has_section('idoff'):
+        config.remove_section('idoff')
+    if config.has_section('igss'):
+        config.remove_section('igss')
+
+    config.add_section('interval')
+    config.set('interval', 'interval', interval_sel)
+
+    config.add_section('rdson')
+    config.set('rdson', 'upper', rdsonul)
+    config.set('rdson', 'lower', rdsonll)
+
+    config.add_section('vth')
+    config.set('vth', 'upper', vthul)
+    config.set('vth', 'lower', vthll)
+
+    config.add_section('idoff')
+    config.set('idoff', 'upper', idofful)
+    config.set('idoff', 'lower', idoffll)
+
+    config.add_section('igss')
+    config.set('igss', 'upper', igssul)
+    config.set('igss', 'lower', igssll)
+
     with open(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini', 'w') as f:
         config.write(f)
 
@@ -31,9 +70,10 @@ def gui():
     main = Tk()
     main.title('Configurator')
     def save():
-        print(interval_sel.get())
-        config_write()
-        config_read()
+        config_write(interval_sel.get(), rdsonul.get(), rdsonll.get(), vthul.get(), vthll.get(), idofful.get(), idoffll.get(), igssul.get(), igssll.get())
+    def save_c():
+        save()
+        main.destroy()
     def default():
         clear()
         interval_sel.insert(0, 1000)
@@ -55,6 +95,19 @@ def gui():
         idoffll.delete(0, END)
         igssul.delete(0, END)
         igssll.delete(0, END)
+    def read_last():
+        clear()
+        interval_sel_r, rdsonul_r, rdsonll_r, vthul_r, vthll_r, idofful_r, idoffll_r, igssul_r, igssll_r = config_read(0)
+
+        interval_sel.insert(0, interval_sel_r)
+        rdsonul.insert(0, rdsonul_r)
+        rdsonll.insert(0, rdsonll_r)
+        vthul.insert(0, vthul_r)
+        vthll.insert(0, vthll_r)
+        idofful.insert(0, idofful_r)
+        idoffll.insert(0, idoffll_r)
+        igssul.insert(0, igssul_r)
+        igssll.insert(0, igssll_r)
 
     main.geometry('800x100')
     Label(main, text = "Enter Interval:").grid(row=0, column=0)
@@ -102,9 +155,11 @@ def gui():
     igssll.grid(row=2, column=7)
 
 
-    Button(main, text='Quit', command=main.destroy).grid(row=4, column=0, sticky=W)
+    Button(main, text='Save and Continue', command=save_c).grid(row=4, column=0, sticky=W)
     Button(main, text='Default', command=default).grid(row=0, column=3, sticky=W)
-    Button(main, text='Clear', command=clear).grid(row=0, column=4, sticky=W)
-    Button(main, text='Save', command=save).grid(row=0, column=5, sticky=W)
+    Button(main, text='Clear', command=clear).grid(row=0, column=5, sticky=W)
+    Button(main, text='Save', command=save).grid(row=0, column=6, sticky=W)
+    Button(main, text='Load Last Saved', command=read_last).grid(row=0, column=7, sticky=W)
 
+    default()
     mainloop()
