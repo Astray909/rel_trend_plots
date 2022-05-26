@@ -42,8 +42,8 @@ if __name__ == "__main__":
     # filter_reader()
     # dcp.csv_merger(99, desktop + 'filtered_logger_temp.xlsx')
     config_gui.gui()
-    dcp.csv_merger(0)
-    range_arr = config_gui.config_read(1) #format: [interval, rdson upper, rdson lower, vth upper, vth lower, idoff upper, idoff lower, igss upper, igss lower]
+    range_arr = config_gui.config_read(1) #format: [interval_sel, rdsonul, rdsonll, rdsontf, vthul, vthll, vthtf, idofful, idoffll, idofftf, igssul, igssll, igsstf, dir_ent]
+    dcp.csv_merger(99, range_arr[-1])
     if not os.path.exists(desktop + '\\REL_TREND_PLOTS'):
             os.makedirs(desktop + '\\REL_TREND_PLOTS')
     filenames = next(os.walk(desktop + '\\REL_TREND_PLOTS\\'), (None, None, []))[2]  # [] if no file

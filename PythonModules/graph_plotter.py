@@ -156,8 +156,8 @@ def data_importer(inputcsv, manual, range_arr):
                 df_TEMP_ol.loc[:,"YYWW_datecode"] = df_list[i].loc[:,"YYWW_datecode"]
                 pd.options.mode.chained_assignment = 'warn'  # default='warn'
 
-                #format: [interval, rdson upper, rdson lower, vth upper, vth lower, idoff upper, idoff lower, igss upper, igss lower]
-                default_ran_arr = ['1000', '150', '-50', '50', '-50', '50', '0', '50', '0']
+                #format: [interval_sel, rdsonul, rdsonll, rdsontf, vthul, vthll, vthtf, idofful, idoffll, idofftf, igssul, igssll, igsstf, dir_ent]
+                default_ran_arr = ['1000', '150', '-50', '5', '50', '-50', '5', '50', '0', '2', '50', '0', '2']
                 ran_arr = []
                 if manual:
                     ran_arr = range_arr.copy()
@@ -166,19 +166,19 @@ def data_importer(inputcsv, manual, range_arr):
                 if c == 'Rdson_aging(%)':
                     high_range = float(ran_arr[1])
                     low_range = float(ran_arr[2])
-                    spacing = 5
+                    spacing = float(ran_arr[3])
                 elif c == 'Vth_aging(%)':
-                    high_range = float(ran_arr[3])
-                    low_range = float(ran_arr[4])
-                    spacing = 5
+                    high_range = float(ran_arr[4])
+                    low_range = float(ran_arr[5])
+                    spacing = float(ran_arr[6])
                 elif c == 'Idoff_rise(x)':
-                    high_range = float(ran_arr[5])
-                    low_range = float(ran_arr[6])
-                    spacing = 2
-                elif c == 'Igss_rise(x)':
                     high_range = float(ran_arr[7])
                     low_range = float(ran_arr[8])
-                    spacing = 2
+                    spacing = float(ran_arr[9])
+                elif c == 'Igss_rise(x)':
+                    high_range = float(ran_arr[10])
+                    low_range = float(ran_arr[11])
+                    spacing = float(ran_arr[12])
                 plt.ylim(low_range, high_range)
                 plt.yticks(np.arange(low_range, high_range, spacing))
                 outlier_df_lower = df_TEMP_ol[(df_TEMP_ol[c] < low_range)]
