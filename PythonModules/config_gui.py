@@ -3,6 +3,7 @@ from tkinter import *
 
 from configparser import ConfigParser
 from tkinter.filedialog import askopenfile, askopenfilename
+from tkinter import messagebox
 config = ConfigParser()
 
 config_dir = os.path.join(os.path.join(os.environ['USERPROFILE']), '.config') + '\\'
@@ -89,6 +90,9 @@ def gui():
         config_write(interval_sel.get(), rdsonul.get(), rdsonll.get(), rdsontf.get(), vthul.get(), vthll.get(), vthtf.get(), idofful.get(), idoffll.get(), idofftf.get(), igssul.get(), igssll.get(), igsstf.get(), dir_ent.get())
     def save_c():
         save()
+        if len(dir_ent.get()) == 0:
+            messagebox.showinfo(title="Important message", message="Please select a reference file")
+            return
         main.destroy()
     def default():
         clear()
