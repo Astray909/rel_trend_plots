@@ -82,6 +82,15 @@ def config_write(interval_sel, rdsonul, rdsonll, rdsontf, vthul, vthll, vthtf, i
 
     with open(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini', 'w') as f:
         config.write(f)
+    
+def config_clear_dir_ent():
+    config.read(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini')
+    if config.has_section('dir'):
+        config.remove_section('dir')
+    config.add_section('dir')
+    config.set('dir', 'reference', "N/A")
+    with open(config_dir + 'jhuang_rel_trend_plots\\' + 'config.ini', 'w') as f:
+        config.write(f)
 
 def gui():
     main = Tk()
@@ -96,6 +105,7 @@ def gui():
         main.destroy()
     def default():
         clear()
+        config_clear_dir_ent()
         interval_sel.insert(0, 1000)
         rdsonul.insert(0, 150)
         rdsonll.insert(0, -50)
