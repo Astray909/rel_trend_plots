@@ -43,6 +43,8 @@ if __name__ == "__main__":
     # dcp.csv_merger(99, desktop + 'filtered_logger_temp.xlsx')
     config_gui.gui()
     range_arr = config_gui.config_read(1) #format: [interval_sel, rdsonul, rdsonll, rdsontf, vthul, vthll, vthtf, idofful, idoffll, idofftf, igssul, igssll, igsstf, dir_ent]
+    if range_arr[-1] == 'N/A':
+        os._exit(0)
     dcp.csv_merger(99, range_arr[-1])
     if not os.path.exists(desktop + '\\REL_TREND_PLOTS'):
             os.makedirs(desktop + '\\REL_TREND_PLOTS')
